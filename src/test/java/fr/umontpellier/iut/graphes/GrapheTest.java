@@ -8,8 +8,7 @@ import fr.umontpellier.iut.rails.data.Ville;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,8 +27,35 @@ public class GrapheTest {
     }
 
     @Test
+    void constructeur_2(){
+        Graphe graphe1 = new Graphe();
+        assertEquals(graphe1.nbAretes(), 0);
+        assertEquals(graphe1.nbSommets(), 0);
+
+    }
+
+    @Test
+    void constructeur_4(){
+        Graphe induit = new Graphe(graphe, new HashSet<>(Arrays.asList(1, 2, 3)));
+        assertEquals(induit.nbAretes(), 2); // 1,2 && 2,3
+    }
+
+    @Test
     void testNbAretes() {
         assertEquals(5, graphe.nbAretes());
+    }
+
+    @Test
+    void ensembleSommet(){
+        Set<Integer> sommets = new HashSet<>();
+        sommets.add(0);
+        sommets.add(1);
+        sommets.add(2);
+        sommets.add(3);
+        sommets.add(8);
+        sommets.add(42);
+        assertEquals(sommets, graphe.ensembleSommets());
+        assertEquals(6, graphe.ensembleSommets().size());
     }
 
 
@@ -105,5 +131,12 @@ public class GrapheTest {
 
     @Test
     void testGetVoisins() {
+        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
+        assertEquals(graphe.getVoisins(1), new HashSet<Integer>(Arrays.asList(0, 2)));
+        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
+        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
+        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
+        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
+
     }
 }

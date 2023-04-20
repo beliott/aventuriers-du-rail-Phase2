@@ -27,14 +27,17 @@ public class Graphe {
      * Construit un graphe à n sommets 0..n-1 sans arêtes
      */
     public Graphe(int n) {
-        throw new RuntimeException("Méthode non implémentée");
+        this.mapAretes = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            this.mapAretes.put(i, new HashSet<>());
+        }
     }
 
     /**
      * Construit un graphe vide
      */
     public Graphe() {
-        throw new RuntimeException("Méthode non implémentée");
+        this.mapAretes = new HashMap<>();
     }
 
     /**
@@ -43,7 +46,17 @@ public class Graphe {
      * @param aretes la collection d'arêtes
      */
     public Graphe(Collection<Arete> aretes) {
-        throw new RuntimeException("Méthode non implémentée");
+        this.mapAretes = new HashMap<>();
+        for (Arete a : aretes) {
+            if (!mapAretes.containsKey(a.i())){
+                mapAretes.put(a.i(), new HashSet<>());
+            }
+            mapAretes.get(a.i()).add(a);
+            if (!mapAretes.containsKey(a.j())){
+                mapAretes.put(a.j(), new HashSet<>());
+            }
+            mapAretes.get(a.j()).add(a);
+        }
     }
 
     /**
@@ -55,21 +68,36 @@ public class Graphe {
      *               prérequis : X inclus dans V()
      */
     public Graphe(Graphe graphe, Set<Integer> X) {
-        throw new RuntimeException("Méthode non implémentée");
+        this.mapAretes = new HashMap<>();
+        for (Integer i : X) {
+            HashSet<Arete> tempAretes = graphe.mapAretes.get(i);
+            for (Arete a : tempAretes) {
+                if (X.contains(a.i()) && X.contains(a.j())){ // si l'arete relie deux points presents dans X
+                    if (!this.mapAretes.containsKey(a.i())){
+                        this.mapAretes.put(a.i(), new HashSet<>());
+                    }
+                    mapAretes.get(a.i()).add(a);
+                    if (!mapAretes.containsKey(a.j())){
+                        mapAretes.put(a.j(), new HashSet<>());
+                    }
+                    mapAretes.get(a.j()).add(a); // pas besoin de verif de pas ajt si deja present car HashSet le fait
+                }
+            }
+        }
     }
 
     /**
      * @return l'ensemble de sommets du graphe
      */
     public Set<Integer> ensembleSommets() {
-        throw new RuntimeException("Méthode non implémentée");
+        return new HashSet<>(mapAretes.keySet()); // TODO: verif si il faut return une copie ou le vrai ensemble
     }
 
     /**
      * @return l'ordre du graphe (le nombre de sommets)
      */
     public int nbSommets() {
-        throw new RuntimeException("Méthode non implémentée");
+        return mapAretes.size();
     }
 
     /**
@@ -77,12 +105,16 @@ public class Graphe {
      * toutes les compter)
      */
     public int nbAretes() {
-        throw new RuntimeException("Méthode non implémentée");
+        int sommeDegres = 0;
+        for (Integer i: mapAretes.keySet()) {
+            sommeDegres += mapAretes.get(i).size();
+        }
+        return sommeDegres / 2;
     }
 
 
     public boolean contientSommet(Integer v) {
-        throw new RuntimeException("Méthode non implémentée");
+        return mapAretes.containsKey(v);
     }
 
     /**
@@ -91,7 +123,9 @@ public class Graphe {
      * @param v le sommet à ajouter
      */
     public void ajouterSommet(Integer v) {
-        throw new RuntimeException("Méthode non implémentée");
+        if (!this.mapAretes.containsKey(v)){
+            this.mapAretes.put(v, new HashSet<>());
+        }
     }
 
     /**
@@ -101,7 +135,14 @@ public class Graphe {
      *          alors les sommets sont automatiquement ajoutés à l'ensemble de sommets du graphe
      */
     public void ajouterArete(Arete a) {
-        throw new RuntimeException("Méthode non implémentée");
+        if (!mapAretes.containsKey(a.i())){
+            ajouterSommet(a.i());
+        }
+        if (!mapAretes.containsKey(a.j())){
+            ajouterSommet(a.j());
+        }
+        mapAretes.get(a.i()).add(a);
+        mapAretes.get(a.j()).add(a);
     }
 
     /**
@@ -111,7 +152,12 @@ public class Graphe {
      *
      */
     public void supprimerArete(Arete a) {
-        throw new RuntimeException("Méthode non implémentée");
+        if (this.mapAretes.containsKey(a.i()) && this.mapAretes.containsKey(a.j())){ // si sommets de l'arete existe
+            if (this.mapAretes.get(a.i()).contains(a) && this.mapAretes.get(a.j()).contains(a)){ // si contient a
+                this.mapAretes.get(a.i()).remove(a);
+                this.mapAretes.get(a.j()).remove(a);
+            }
+        }
     }
 
     /**
@@ -119,7 +165,12 @@ public class Graphe {
      * @return true si a est présente dans le graphe
      */
     public boolean existeArete(Arete a) {
-        throw new RuntimeException("Méthode non implémentée");
+        for (Integer i :this.mapAretes.keySet()) {
+            HashSet<Arete> iAretes = new HashSet<>(mapAretes.get(i));
+            if (iAretes.contains(a))
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -138,7 +189,13 @@ public class Graphe {
      * @param v l'identifiant du sommet dont on veut le voisinage
      */
     public Set<Integer> getVoisins(int v) {
-        throw new RuntimeException("Méthode non implémentée");
+        HashSet<Integer> voisins =new HashSet<>();
+        if (mapAretes.containsKey(v)){
+            for (Arete a : mapAretes.get(v)) {
+                voisins.add(a.getAutreSommet(v));
+            }
+        }
+       return voisins;
     }
 
     /**
