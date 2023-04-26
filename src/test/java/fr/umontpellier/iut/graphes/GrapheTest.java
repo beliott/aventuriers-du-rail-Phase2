@@ -133,10 +133,10 @@ public class GrapheTest {
     void testGetVoisins() {
         assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
         assertEquals(graphe.getVoisins(1), new HashSet<Integer>(Arrays.asList(0, 2)));
-        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
-        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
-        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
-        assertEquals(graphe.getVoisins(0), new HashSet<Integer>(Arrays.asList(1, 3)));
+        assertEquals(graphe.getVoisins(2), new HashSet<Integer>(Arrays.asList(1, 3)));
+        assertEquals(graphe.getVoisins(3), new HashSet<Integer>(Arrays.asList(0, 2)));
+        assertEquals(graphe.getVoisins(8), new HashSet<Integer>(List.of(42)));
+        assertEquals(graphe.getVoisins(42), new HashSet<Integer>(List.of(8)));
 
     }
 }
