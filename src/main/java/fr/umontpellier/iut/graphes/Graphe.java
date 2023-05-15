@@ -222,11 +222,35 @@ public class Graphe {
      * @return le degré max, et Integer.Min_VALUE si le graphe est vide
      */
     public int degreMax(){
-        throw new RuntimeException("Méthode non implémentée");
+        if (this.nbAretes() == 0){  // par rapport aux aretes car peut avoir sommets mais vides
+            return Integer.MIN_VALUE;
+        }
+        int max = 0;
+        for (Integer i: this.mapAretes.keySet()) {
+            if (degre(i) > max){
+                max = degre(i);
+            }
+        }
+        return max;
     }
 
+    /**
+     *
+     * @return true si on ne trouve pas plusieurs aretes reliant deux memes sommets. (pour tous les sommets du graphe)
+     */
     public boolean estSimple(){
-        throw new RuntimeException("Méthode non implémentée");
+        for (Integer i : this.mapAretes.keySet()) {
+            HashSet<Arete> temp = new HashSet<>(this.mapAretes.get(i));
+            for (Arete a : temp) {
+                int sommetI = a.i(), sommetJ = a.j();
+                for (Arete test : temp) {
+                    if (!test.equals(a) && (sommetI == test.i() || sommetI == test.j()) && (sommetJ == test.i() || sommetJ == test.j()) && test.i() != test.j()){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -234,7 +258,18 @@ public class Graphe {
      *
      */
     public boolean estComplet() {
-        throw new RuntimeException("Méthode non implémentée");
+        for (Integer i : this.mapAretes.keySet()) {
+            HashSet<Arete> h = this.mapAretes.get(i);
+            for (Integer j: this.mapAretes.keySet()) {
+                if (!Objects.equals(i, j)){ // i != j  => Integer au lieu de int, necessite Objects. pour suppr warning
+                    Arete tempArete = new Arete(i, j), tempAreteReverse = new Arete(j, i); // on connait pas l'ordre a l'avance, donc on envisage les 2
+                    if (!h.contains(tempArete) && !h.contains(tempAreteReverse)){
+                        return false; // l'arrete créée au sens equals du hashSet doit etre la meme pour que ca soit bon
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -243,7 +278,60 @@ public class Graphe {
      * les sommets successifs de la chaîne. On considère que le graphe vide est une chaîne.
      */
     public boolean estUneChaine() {
-        throw new RuntimeException("Méthode non implémentée");
+        int sommetPremierD = -1;
+        if (this.nbSommets() == 0 || nbAretes() == 0){
+            return true;
+        } else if (this.estSimple()) {
+            // Premiere partie regarde si les degrés correspondent.
+            int nbDegre1 = 0;
+            for (Integer i: this.mapAretes.keySet()) {
+                int degreDeI = degre(i);
+                if (degreDeI == 1){
+                    if (nbDegre1 == 2){
+                        return false;
+                    }
+                    else if (nbDegre1 == 1) {
+                        for (Arete a : this.mapAretes.get(i)){ // juste pour recuperer l'arete
+                            if (a.getAutreSommet(i) == sommetPremierD) // si le seul voisin c'est celui de degré 1
+                                return false;
+                        }
+                    }
+                    else if (nbDegre1 == 0)
+                        sommetPremierD = i;
+                    nbDegre1++;
+                } else if (degreDeI > 2) { // 2 ok et 0 aussi mais 3 plus une chaine.
+                    return false;
+                }
+            }
+            if (nbDegre1 != 2) // par definition une chaine a une tete et une queue/ un debut et une fin
+                return false;
+            // Deuxieme partie parcourt sommets pour voir si contient un cycle ou pas (pas besoin de checker si paralleles)
+            Queue<Integer> aParcourir = new ArrayDeque<Integer>();// TODO: remplacer par verification de si contient un cycle ou pas en regardant les voisins de chacun a partir du sommetPremierD
+            aParcourir.add(sommetPremierD);
+            Integer eltPrecedent = null;
+            Integer eltActuel = null;
+            HashSet<Integer> pointsParcourus = new HashSet<>();
+
+            while(!aParcourir.isEmpty()){
+                if (eltActuel != null){// si pas premier sommet a parcourir
+                    eltPrecedent = eltActuel;
+                    pointsParcourus.add(eltPrecedent);
+                }
+                eltActuel = aParcourir.poll();
+                for (Arete a : this.mapAretes.get(eltActuel)) {
+                    Integer sommet2 = a.getAutreSommet(eltActuel);
+                    if (pointsParcourus.contains(sommet2)){
+                        if (!sommet2.equals(eltPrecedent))
+                            return false;
+                    } else {
+                        aParcourir.add(sommet2);
+                    }
+                }
+            }
+
+        } else
+            return false;
+        return true;
     }
 
 
