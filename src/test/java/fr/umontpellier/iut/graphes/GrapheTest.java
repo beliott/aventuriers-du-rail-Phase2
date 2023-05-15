@@ -139,4 +139,68 @@ public class GrapheTest {
         assertEquals(graphe.getVoisins(42), new HashSet<Integer>(List.of(8)));
 
     }
+
+    @Test
+    void testEstSimple(){
+        assertTrue(graphe.estSimple());
+        graphe.ajouterArete(new Arete(0, 0));
+        assertFalse(graphe.estSimple());
+    }
+
+    /*
+    @Test
+    void testAretePourLaCulture(){
+        Arete a = new Arete(0, 1);
+        int nbAvant = graphe.nbAretes();
+        graphe.ajouterArete(a);
+        int nbApres = graphe.nbAretes();
+        assertEquals(nbAvant, nbApres);
+    }
+
+     */
+
+    @Test
+    public void test_degreMax(){
+        assertEquals(graphe.degreMax(), 2);
+        graphe.ajouterArete(new Arete(0, 42));
+        assertEquals(graphe.degreMax(), 3);
+        graphe.supprimerSommet(0);
+        assertEquals(graphe.degreMax(), 2);
+    }
+
+    @Test
+    public void test_estComplet(){
+        Graphe complet = new Graphe(4);
+        complet.ajouterArete(new Arete(0,1));
+        complet.ajouterArete(new Arete(0,2));
+        complet.ajouterArete(new Arete(0,3));
+        complet.ajouterArete(new Arete(1,2));
+        complet.ajouterArete(new Arete(1,3));
+        complet.ajouterArete(new Arete(2,3));
+        assertTrue(complet.estComplet());
+        assertFalse(graphe.estComplet());
+
+    }
+
+    @Test
+    public void test_estUneChaine(){
+        Graphe gVide = new Graphe();
+        assertTrue(gVide.estUneChaine());
+        assertFalse(graphe.estUneChaine());
+        Graphe gChaine = new Graphe(graphe, Set.of(0, 1, 2, 3));
+        assertFalse(graphe.estUneChaine()); // encore un cycle pour le moment
+        gChaine.supprimerArete(new Arete(2, 3));
+        assertTrue(gChaine.estUneChaine());
+        // test de consigne
+        Graphe chaineOrdre10 = new Graphe(10);
+        for (int i = 0; i < 10; i++) {
+            if (i != 9){
+                Arete a = new Arete(i, i+1);
+                chaineOrdre10.ajouterArete(a);
+            }
+        }
+        assertTrue(chaineOrdre10.estUneChaine());
+        chaineOrdre10.ajouterArete(new Arete(9, 0));
+        assertFalse(chaineOrdre10.estUneChaine());
+    }
 }
