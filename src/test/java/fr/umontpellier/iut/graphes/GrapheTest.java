@@ -188,7 +188,7 @@ public class GrapheTest {
         assertTrue(gVide.estUneChaine());
         assertFalse(graphe.estUneChaine());
         Graphe gChaine = new Graphe(graphe, Set.of(0, 1, 2, 3));
-        assertFalse(graphe.estUneChaine()); // encore un cycle pour le moment
+        assertFalse(gChaine.estUneChaine()); // encore un cycle pour le moment
         gChaine.supprimerArete(new Arete(2, 3));
         assertTrue(gChaine.estUneChaine());
         // test de consigne
@@ -203,4 +203,35 @@ public class GrapheTest {
         chaineOrdre10.ajouterArete(new Arete(9, 0));
         assertFalse(chaineOrdre10.estUneChaine());
     }
+
+
+    @Test
+    public void test_estUnCycle(){
+        Graphe gVide = new Graphe();
+        assertTrue(gVide.estUnCycle());
+        assertFalse(graphe.estUnCycle());
+
+        Graphe gChaine = new Graphe(graphe, Set.of(0, 1, 2, 3));
+        assertTrue(gChaine.estUnCycle()); // encore un cycle pour le moment
+        gChaine.supprimerArete(new Arete(2, 3));
+        assertFalse(gChaine.estUnCycle());
+
+    List<Arete> areteList = new ArrayList<>();
+        for (int i = 1; i <= 9 ; i++) {
+            areteList.add(new Arete(i, i - 1));
+        }
+        Graphe cycleOrdre10 = new Graphe(areteList);
+        assertFalse(cycleOrdre10.estUnCycle());
+        cycleOrdre10.ajouterArete(new Arete(0, 9));
+        assertTrue(cycleOrdre10.estUnCycle());
+    }
+
+    /*@Test
+    public void test_estAcyclique(){
+        assertFalse(graphe.estAcyclique());
+        graphe.supprimerArete(new Arete(2, 3));
+        assertTrue(graphe.estAcyclique());
+    }
+
+     */
 }

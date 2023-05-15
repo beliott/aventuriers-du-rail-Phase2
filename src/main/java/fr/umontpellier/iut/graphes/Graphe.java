@@ -306,7 +306,7 @@ public class Graphe {
             if (nbDegre1 != 2) // par definition une chaine a une tete et une queue/ un debut et une fin
                 return false;
             // Deuxieme partie parcourt sommets pour voir si contient un cycle ou pas (pas besoin de checker si paralleles)
-            Queue<Integer> aParcourir = new ArrayDeque<Integer>();// TODO: remplacer par verification de si contient un cycle ou pas en regardant les voisins de chacun a partir du sommetPremierD
+            Queue<Integer> aParcourir = new ArrayDeque<>();
             aParcourir.add(sommetPremierD);
             Integer eltPrecedent = null;
             Integer eltActuel = null;
@@ -334,7 +334,6 @@ public class Graphe {
         return true;
     }
 
-
     /**
      * @return true ssi this est un cycle. Attention, être un cycle implique
      * en particulier que l'on a une seule arête (et pas plusieurs en parallèle) entre
@@ -343,8 +342,91 @@ public class Graphe {
      * On considère que le graphe vide est un cycle.
      */
     public boolean estUnCycle() {
-           throw new RuntimeException("Méthode non implémentée");
+        if (this.nbSommets() == 0 || nbAretes() == 0) {
+            return true;
+        }
+        if (!this.estSimple())
+            return false;
+        int cpt = 0;
+        Integer premierSommetParcouru = null;
+        Integer sommetActuel = null;
+        Integer sommetPrecedent = null;
+        Integer sommetProchain = null;
+        List<Integer> dejaVu = new ArrayList<>();
+
+        while (cpt < nbSommets()){
+            cpt++;
+            if (sommetActuel == null){ // si debut parcours
+                List<Integer> l = new ArrayList<>(this.mapAretes.keySet());
+                sommetActuel = l.get(0);
+            } else {
+                sommetPrecedent = sommetActuel;
+                sommetActuel = sommetProchain;
+            }
+            dejaVu.add(sommetActuel);
+            if (degre(sommetActuel) != 2) // une seule arete entre sommets successifs
+                return false;
+            Set<Integer> voisins = getVoisins(sommetActuel);
+            for (Integer voisin : voisins) {
+                if (premierSommetParcouru == null) { // on prend pas le premier car on veut partir dans un sens pour revenir
+                    premierSommetParcouru = sommetActuel;
+                }
+                else{
+                    if (!Objects.equals(voisin, sommetPrecedent)){ // si pas sommet precedent
+                        if (dejaVu.contains(voisin) && cpt != nbSommets()) // si croisement mais pas fin du graphe
+                            return false;
+                        else if (dejaVu.contains(voisin) && cpt == nbSommets() && !Objects.equals(voisin, premierSommetParcouru))// si arrive au bout du cycle mais connexion avec le mauvais
+                            return false;
+                        if (!dejaVu.contains(voisin)){ // si nouveau voisin a parcourir
+                            sommetProchain = voisin;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
+
+    /*
+    public boolean estAcyclique(){
+        Set<Integer> parcourus = new HashSet<>();
+        HashMap<Integer, Integer> antecedentsParcours = new HashMap<>();
+        Set<Integer> dejavu = new HashSet<>();
+        Integer premierSommet;
+        if (this.mapAretes.keySet().isEmpty()){
+            return true;
+        } else {
+            for (Integer i: this.mapAretes.keySet()) { // je suis trop nul j'arrive pas a recup un point au hasard autrement
+                premierSommet = i;
+                break;
+            }
+        }
+        Integer sommetActuel = premierSommet, sommetPrecedent;
+        dejavu.add(sommetActuel);
+        Queue<Integer> ordrePassage = new ArrayDeque<>(getVoisins(sommetActuel));
+        for (Integer x : this.mapAretes.keySet()) {
+            if (parcourus.contains(x)){
+                continue;
+            }
+            while(!ordrePassage.isEmpty()){
+                sommetPrecedent = sommetActuel;
+                sommetActuel = ordrePassage.poll();
+                dejavu.add(sommetActuel);
+                for (Integer v: getVoisins(sommetActuel)) {
+                    if (dejavu.contains(v) && !v.equals(sommetPrecedent)){ // si v du sommet est deja-vu et pas sommet precedent ca boucle
+                        return false;
+                    } else if (!dejavu.contains(v)) { // si pas v precedent
+                        if (ordrePassage.contains(v)){ // si v est deja dans la liste d'attente ca va boucler
+                            return false;
+                        }
+                        ordrePassage.add(v);
+                    }
+                }
+            }
+            parcourus.addAll(dejavu);// on a testé tte leur classe de connexité donc on sait qu'ils sont acycliques
+        }
+        return true;
+    } */
 
 
     public boolean estUneForet() {
@@ -352,11 +434,28 @@ public class Graphe {
     }
 
     public Set<Integer> getClasseConnexite(int v) {
-        throw new RuntimeException("Méthode non implémentée");
+        Queue<Integer> vert = new ArrayDeque<>();
+        vert.add(v);
+        Queue<Integer> rouge = new ArrayDeque<>();
+        while (!vert.isEmpty()){ // TODO : checker si x = int ou Integer;
+            int x = vert.remove();
+            for (Integer y: this.getVoisins(x)) {
+                if (!vert.contains(y) && !rouge.contains(y))
+                    vert.add(y);
+            }
+            rouge.add(x);
+        }
+        HashSet<Integer> bleu = new HashSet<>(vert); // normalement vert est vide donc pas obligé mais au cas ou
+        bleu.addAll(rouge);
+        return bleu;
     }
 
     public Set<Set<Integer>> getEnsembleClassesConnexite() {
-        throw new RuntimeException("Méthode non implémentée");
+        Set<Set<Integer>> classes = new HashSet<>();
+        for (Integer x :this.mapAretes.keySet()) {
+            classes.add(getClasseConnexite(x));
+        }
+        return classes; // TODO : regarder si HashSet enleve les doublons de classes de connexité.
     }
 
     /**
