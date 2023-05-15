@@ -387,48 +387,6 @@ public class Graphe {
         return true;
     }
 
-    /*
-    public boolean estAcyclique(){
-        Set<Integer> parcourus = new HashSet<>();
-        HashMap<Integer, Integer> antecedentsParcours = new HashMap<>();
-        Set<Integer> dejavu = new HashSet<>();
-        Integer premierSommet;
-        if (this.mapAretes.keySet().isEmpty()){
-            return true;
-        } else {
-            for (Integer i: this.mapAretes.keySet()) { // je suis trop nul j'arrive pas a recup un point au hasard autrement
-                premierSommet = i;
-                break;
-            }
-        }
-        Integer sommetActuel = premierSommet, sommetPrecedent;
-        dejavu.add(sommetActuel);
-        Queue<Integer> ordrePassage = new ArrayDeque<>(getVoisins(sommetActuel));
-        for (Integer x : this.mapAretes.keySet()) {
-            if (parcourus.contains(x)){
-                continue;
-            }
-            while(!ordrePassage.isEmpty()){
-                sommetPrecedent = sommetActuel;
-                sommetActuel = ordrePassage.poll();
-                dejavu.add(sommetActuel);
-                for (Integer v: getVoisins(sommetActuel)) {
-                    if (dejavu.contains(v) && !v.equals(sommetPrecedent)){ // si v du sommet est deja-vu et pas sommet precedent ca boucle
-                        return false;
-                    } else if (!dejavu.contains(v)) { // si pas v precedent
-                        if (ordrePassage.contains(v)){ // si v est deja dans la liste d'attente ca va boucler
-                            return false;
-                        }
-                        ordrePassage.add(v);
-                    }
-                }
-            }
-            parcourus.addAll(dejavu);// on a testé tte leur classe de connexité donc on sait qu'ils sont acycliques
-        }
-        return true;
-    } */
-
-
     public boolean estUneForet() {
         throw new RuntimeException("Méthode non implémentée");
     }
@@ -437,7 +395,7 @@ public class Graphe {
         Queue<Integer> vert = new ArrayDeque<>();
         vert.add(v);
         Queue<Integer> rouge = new ArrayDeque<>();
-        while (!vert.isEmpty()){ // TODO : checker si x = int ou Integer;
+        while (!vert.isEmpty()){
             int x = vert.remove();
             for (Integer y: this.getVoisins(x)) {
                 if (!vert.contains(y) && !rouge.contains(y))
@@ -455,7 +413,7 @@ public class Graphe {
         for (Integer x :this.mapAretes.keySet()) {
             classes.add(getClasseConnexite(x));
         }
-        return classes; // TODO : regarder si HashSet enleve les doublons de classes de connexité.
+        return classes;
     }
 
     /**
