@@ -72,6 +72,7 @@ public class Graphe {
     public Graphe(Graphe graphe, Set<Integer> X) {
         this.mapAretes = new HashMap<>();
         for (Integer i : X) {
+            this.mapAretes.put(i, new HashSet<>());
             HashSet<Arete> tempAretes = graphe.mapAretes.get(i);
             for (Arete a : tempAretes) {
                 if (X.contains(a.i()) && X.contains(a.j())){ // si l'arete relie deux points presents dans X
@@ -387,8 +388,43 @@ public class Graphe {
         return true;
     }
 
+    public boolean estUnArbre(){
+        if (this.nbSommets() == 0 || nbAretes() == 0 && nbSommets() > 1)
+            return false;
+        else if (this.nbSommets() == 1)
+            return true;
+        Queue<Integer> vert = new ArrayDeque<>();
+        for (Integer i :this.mapAretes.keySet()) {
+            vert.add(i);
+            break;
+        }
+        Queue<Integer> rouge = new ArrayDeque<>();
+        while (!vert.isEmpty()){
+            int x = vert.remove();
+            for (Integer y: this.getVoisins(x)) {
+                if (vert.contains(y))
+                    return false; // si deja dans ceux a explorer ensuite alors ca boucle
+                if (!vert.contains(y) && !rouge.contains(y))
+                    vert.add(y);
+            }
+            rouge.add(x);
+        }
+        HashSet<Integer> bleu = new HashSet<>(vert); // normalement vert est vide donc pas obligé mais au cas ou
+        bleu.addAll(rouge);
+        return bleu.equals(this.mapAretes.keySet());
+    }
+
     public boolean estUneForet() {
-        throw new RuntimeException("Méthode non implémentée");
+        if (nbSommets() == 0 || nbSommets() == 1 || nbSommets() > 1 && nbAretes() == 0){
+            return true;
+        }
+        for (Set<Integer> classeDeC : this.getEnsembleClassesConnexite()){ // si chaque composante connexe = arbre alors foret
+            Graphe sousGraphe = new Graphe(this, classeDeC);
+            if(!sousGraphe.estUnArbre()){
+                return false;
+            }
+        }
+        return true;
     }
 
     public Set<Integer> getClasseConnexite(int v) {
@@ -420,11 +456,17 @@ public class Graphe {
      * @return true si et seulement si l'arête passée en paramètre est un isthme dans le graphe.
      */
     public boolean estUnIsthme(Arete a) {
-        throw new RuntimeException("Méthode non implémentée");
+        if (!existeArete(a)){
+            return false;
+        }
+        Graphe copieGraphe = new Graphe(this, this.mapAretes.keySet());
+        int nbClassesdeConnexite = copieGraphe.getEnsembleClassesConnexite().size();
+        copieGraphe.supprimerArete(a);
+        return nbClassesdeConnexite < copieGraphe.getEnsembleClassesConnexite().size();// inferieur = nouvelle ClcG
     }
 
     public boolean sontAdjacents(int i, int j) {
-        throw new RuntimeException("Méthode non implémentée");
+        return getVoisins(i).contains(j);
     }
 
     /**
@@ -435,7 +477,20 @@ public class Graphe {
      * Si un des sommets n'est pas présent dans le graphe, alors cette fonction ne fait rien.
      */
     public void fusionnerSommets(int i, int j) {
-        throw new RuntimeException("Méthode non implémentée");
+        if (!this.mapAretes.containsKey(i) || !this.mapAretes.containsKey(j))
+            return;
+        int nouveauSommet = Math.min(i, j);
+        // supprimer aretes de i a j
+        HashSet<Arete> aretesI = this.mapAretes.get(i);
+        HashSet<Arete> aretesJ = this.mapAretes.get(j);
+        for (Arete aDeI: aretesI)
+            if (aDeI.getAutreSommet(i) == j)
+                supprimerArete(aDeI);
+        for (Arete aDeJ: aretesJ)    // deuxieme partie pas obligée car automatique mais on sait jamais
+            if (aDeJ.getAutreSommet(j) == i)
+                supprimerArete(aDeJ);
+        // fusion aretes en un point
+
     }
 
     /**

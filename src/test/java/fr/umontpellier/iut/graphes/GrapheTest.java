@@ -226,12 +226,47 @@ public class GrapheTest {
         assertTrue(cycleOrdre10.estUnCycle());
     }
 
-    /*@Test
-    public void test_estAcyclique(){
-        assertFalse(graphe.estAcyclique());
-        graphe.supprimerArete(new Arete(2, 3));
-        assertTrue(graphe.estAcyclique());
+    @Test
+    public void test_getClasseDeConnexite(){
+        assertEquals(graphe.getClasseConnexite(0), graphe.getClasseConnexite(1));
+        assertEquals(graphe.getClasseConnexite(8), graphe.getClasseConnexite(42));
+        assertEquals(graphe.getEnsembleClassesConnexite().size(), 2);
+        graphe.supprimerArete(new Arete(8, 42));
+        assertEquals(graphe.getEnsembleClassesConnexite().size(), 3);
     }
 
-     */
+    @Test
+    public void test_estUnArbre(){
+        assertFalse(graphe.estUnArbre());
+        Graphe arete = new Graphe(graphe, new HashSet<>(Arrays.asList(8, 42)));
+        Graphe cycle = new Graphe(graphe, new HashSet<>(Arrays.asList(0, 1, 2, 3)));
+        assertFalse(cycle.estUnArbre());
+        assertTrue(arete.estUnArbre());
+        cycle.supprimerArete(new Arete(0, 1));
+        assertTrue(cycle.estUnArbre());
+
+    }
+
+    @Test
+    public void test_estUneForet(){
+        assertFalse(graphe.estUneForet());
+        graphe.supprimerArete(new Arete(0, 1));
+        assertTrue(graphe.estUneForet());
+        graphe.supprimerArete(new Arete(8, 42));
+        assertTrue(graphe.estUneForet());
+
+    }
+
+    @Test
+    public void test_estUnIsthme(){
+        assertFalse(graphe.estUnIsthme(new Arete(0, 1)));
+        assertTrue(graphe.estUnIsthme(new Arete(8, 42)));
+    }
+
+    @Test
+    public void test_sontAdjacents(){
+        assertTrue(graphe.sontAdjacents(0, 1));
+        assertTrue(graphe.sontAdjacents(42, 8));
+        assertFalse(graphe.sontAdjacents(0, 8));
+    }
 }
