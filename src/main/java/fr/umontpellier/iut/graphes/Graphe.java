@@ -490,6 +490,18 @@ public class Graphe {
             if (aDeJ.getAutreSommet(j) == i)
                 supprimerArete(aDeJ);
         // fusion aretes en un point
+        if (i == nouveauSommet){
+            for (Arete aDeJ: this.mapAretes.get(j)) {
+                ajouterArete(new Arete(nouveauSommet, aDeJ.getAutreSommet(j)));
+            }
+            supprimerSommet(j);
+        }
+        else {
+            for (Arete aDeI: this.mapAretes.get(i)) {
+                ajouterArete(new Arete(nouveauSommet, aDeI.getAutreSommet(i)));
+            }
+            supprimerSommet(i);
+        }
 
     }
 

@@ -269,4 +269,18 @@ public class GrapheTest {
         assertTrue(graphe.sontAdjacents(42, 8));
         assertFalse(graphe.sontAdjacents(0, 8));
     }
+
+    @Test
+    public void test_fusionnerSommets(){
+        graphe.fusionnerSommets(0, 1);
+        assertTrue(graphe.sontAdjacents(0, 2));
+        assertEquals(graphe.getClasseConnexite(0).size(), 3);
+        assertEquals(graphe.getEnsembleClassesConnexite().size(), 2);
+        graphe.fusionnerSommets(0, 8);
+        assertTrue(graphe.sontAdjacents(0, 42));
+        assertEquals(graphe.getClasseConnexite(0).size(), 4);
+        assertEquals(graphe.getEnsembleClassesConnexite().size(), 1);
+        assertFalse(graphe.existeArete(new Arete(8, 42)));
+
+    }
 }
