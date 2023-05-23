@@ -513,8 +513,7 @@ public class Graphe {
         int n = sequence.size();
         Graphe graphe = new Graphe(n);
 
-        for (int i = 0; i < n; i++) {
-            int sommet = sequence.get(i);
+        for (int sommet : sequence) {
             if (sommet < 0 || sommet >= n) {
                 return false;
             }
@@ -532,11 +531,7 @@ public class Graphe {
             }
             graphe.ajouterArete(arete);
         }
-        if (!graphe.estSimple()) {
-            return false;
-        }
-
-        return true;
+        return graphe.estSimple();
     }
 
     // crée une liste des degrés des sommets, les trie dans l'ordre décroissant, puis renvoie cette liste.
@@ -685,7 +680,7 @@ public class Graphe {
      * @param nbBateaux le nombre de bateaux disponibles
      * @param nbWagons  le nombre de wagons disponibles
      * @return une liste d'entiers correspondant aux sommets du chemin, où l'élément en position 0 de la liste
-     * et le sommet de départ, et l'élément à la dernière position de la liste (taille de la liste - 1) est le somme d'arrivée.
+     * est le sommet de départ, et l'élément à la dernière position de la liste (taille de la liste - 1) est le sommet d'arrivée.
      * Si le chemin n'existe pas, retourne une liste vide (initialisée avec 0 éléments).
      * Pré-requis le graphe `this` est un graphe avec des routes (les objets routes ne sont pas null).
      */
