@@ -529,8 +529,95 @@ public class Graphe {
      *                false si toutes les arêtes ont un poids de 1 (utile lorsque les routes associées sont complètement omises)
      */
     public List<Integer> parcoursSansRepetition(int depart, int arrivee, boolean pondere) {
-        throw new RuntimeException("Méthode non implémentée");
+        if (pondere){
+            HashMap<Integer, Couple> parcours = new HashMap<>();
+            for (Integer sommet:this.mapAretes.keySet()) {
+                if (sommet.equals(depart)){
+                    parcours.put(sommet, new Couple(0));
+                }
+                else
+                    parcours.put(sommet, new Couple());
+            }
+            PriorityQueue<Integer> file = new PriorityQueue<>(new Comparator<Integer>() { // on crée la file qui implementera dijkstra
+                @Override
+                public int compare(Integer o1, Integer o2) {
+                    if (parcours.get(o1).getDistance() < parcours.get(o2).getDistance()){
+                        return o1;
+                    }
+                    return o2;
+                }
+            });
+            file.add(depart);
+            while (!file.isEmpty()){
+                Integer sommetActuel = file.poll();
+                for (Integer i: this.getVoisins(sommetActuel)) {
+                    Couple elt = parcours.get(i);
+                    Arete areteAParcourir = null;
+                    for (Arete a : this.mapAretes.get(i))
+                        if (a.getAutreSommet(i) == sommetActuel) {
+                            areteAParcourir = a;
+                        }
+                    if (areteAParcourir.route() != null)
+                        if (parcours.get(sommetActuel).getDistance() + areteAParcourir.route().getLongueur() < elt.getDistance()){
+                            elt.setPrevious(sommetActuel);
+                            elt.setDistance(parcours.get(sommetActuel).getDistance() + areteAParcourir.route().getLongueur());
+                            file.add(i);
+                        }
+                }
+            }
+            Couple cplActuel = parcours.get(arrivee);
+            List<Integer> cheminLePlusCourt = new ArrayList<>();
+            cheminLePlusCourt.add(0, arrivee);
+            while (cplActuel.getPrevious() != null){
+                cheminLePlusCourt.add(0, cplActuel.getPrevious());
+                cplActuel = parcours.get(cplActuel.getPrevious());
+            }
+            return  cheminLePlusCourt;
+        } else{
+            List<Integer> parcours = new ArrayList<>();
+            Set<Integer> visite = new HashSet<>();
+            Queue<Integer> file = new LinkedList<>();
+
+            // Ajouter le sommet de départ à la file et à l'ensemble de visite
+            file.add(depart);
+            visite.add(depart);
+
+            // Parcours en largeur
+            while (!file.isEmpty()) {
+                int sommetActuel = file.poll();
+                if (sommetActuel == arrivee) {
+                    break;
+                }
+                for (Arete arete : this.mapAretes.get(sommetActuel)) {
+                    int sommetSuivant = arete.getAutreSommet(sommetActuel);
+
+                    if (!visite.contains(sommetSuivant)) {
+                        visite.add(sommetSuivant);
+                        file.add(sommetSuivant);
+                    }
+                }
+            }
+
+            // parcours à partir du sommet d'arrivée en remontant les prédécesseurs
+            int sommetCourant = arrivee;
+            parcours.add(sommetCourant);
+
+            while (sommetCourant != depart) {
+                for (Arete arete : this.mapAretes.get(sommetCourant)) {
+                    int sommetPrecedent = arete.getAutreSommet(sommetCourant);
+                    if (visite.contains(sommetPrecedent)) {
+                        parcours.add(sommetPrecedent);
+                        sommetCourant = sommetPrecedent;
+                        break;
+                    }
+                }
+            }
+
+            Collections.reverse(parcours); // Inverser l'ordre des sommets pour obtenir le parcours dans le bon sens
+            return parcours;
+        }
     }
+
 
     /**
      * Retourne un chemin entre 2 sommets sans répétition de sommets et sans dépasser
