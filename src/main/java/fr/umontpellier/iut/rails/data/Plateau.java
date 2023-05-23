@@ -15,6 +15,11 @@ public class Plateau {
      * Liste des villes
      */
     private final List<Ville> villes;
+
+    public List<Ville> getVilles() {
+        return villes;
+    }
+
     /**
      * Liste des routes
      */
@@ -234,7 +239,21 @@ public class Plateau {
      * Les sommets du graphe correspondent aux identifiants des villes (qui sont des entiers).
      */
     public Graphe getGraphe() {
-        throw new RuntimeException("Méthode non implémentée");
+        Plateau temp = makePlateauMonde();
+        Graphe graphe = new Graphe();
+
+        for (Ville ville : temp.getVilles()) {
+            graphe.ajouterSommet(ville.getId());
+        }
+        for (Route route : temp.getRoutes()) {
+            int villeDepart = route.getVille1().getId();
+            int villeArrivee = route.getVille2().getId();
+            Arete a = new Arete(villeDepart,villeArrivee);
+            if (!graphe.existeArete(a)){
+                graphe.ajouterArete(a);
+            }
+        }
+        return graphe;
     }
 
     /**
@@ -242,6 +261,27 @@ public class Plateau {
      * Les sommets du graphe correspondent aux identifiants des villes (qui sont des entiers).
      */
     public Graphe getGraphe(Collection<Route> ensembleDeRoutes) {
-        throw new RuntimeException("Méthode non implémentée");
+        Graphe graphe = new Graphe();
+
+        // Parcours de l'ensemble de routes pour ajouter les sommets au graphe
+        for (Route route : ensembleDeRoutes) {
+            int villeDepart = route.getVille1().getId();
+            int villeArrivee = route.getVille2().getId();
+
+            graphe.ajouterSommet(villeDepart);
+            graphe.ajouterSommet(villeArrivee);
+        }
+
+        // Ajout des arêtes entre les sommets du graphe en fonction des routes disponibles
+        for (Route route : ensembleDeRoutes) {
+            int villeDepart = route.getVille1().getId();
+            int villeArrivee = route.getVille2().getId();
+            Arete a = new Arete(villeDepart,villeArrivee);
+            if (!graphe.existeArete(a)){
+                graphe.ajouterArete(a);
+            }
+        }
+
+        return graphe;
     }
 }

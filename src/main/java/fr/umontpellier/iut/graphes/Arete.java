@@ -33,4 +33,18 @@ public record Arete(int i, int j, Route route) {
     public int hashCode() {
         return Objects.hash(i, j, route);
     }
+    @Override
+    public int i() {
+        return i;
+    }
+
+    @Override
+    public int j() {
+        return j;
+    }
+
+    @Override
+    public Route route() {
+        return route;
+    }
 }

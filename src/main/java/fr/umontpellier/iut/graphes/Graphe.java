@@ -510,16 +510,69 @@ public class Graphe {
      * La pondération des arêtes devrait être ignorée.
      */
     public static boolean sequenceEstGraphe(List<Integer> sequence) {
-        throw new RuntimeException("Méthode non implémentée");
+        int n = sequence.size();
+        Graphe graphe = new Graphe(n);
+
+        for (int i = 0; i < n; i++) {
+            int sommet = sequence.get(i);
+            if (sommet < 0 || sommet >= n) {
+                return false;
+            }
+        }
+
+        // Construire les aretes du graphe
+        for (int i = 0; i < n - 1; i++) {
+            int sommet1 = sequence.get(i);
+            int sommet2 = sequence.get(i + 1);
+            Arete arete = new Arete(sommet1, sommet2);
+
+            // Si graphe simple alors pas de doublons d'arete
+            if (graphe.existeArete(arete)) {
+                return false;
+            }
+            graphe.ajouterArete(arete);
+        }
+        if (!graphe.estSimple()) {
+            return false;
+        }
+
+        return true;
     }
+
+    // crée une liste des degrés des sommets, les trie dans l'ordre décroissant, puis renvoie cette liste.
+    public static List<Integer> sequenceDegres(Graphe g) {
+        List<Integer> sequence = new ArrayList<>();
+
+        for (int sommet : g.ensembleSommets()) {
+            int degree = g.degre(sommet);
+            sequence.add(degree);
+        }
+
+        sequence.sort(Comparator.reverseOrder(  ));
+        return sequence;
+    }
+
 
     /**
      * @return true si et seulement si la séquence d'entiers passée en paramètre correspond à un graphe valide.
      * La pondération des arêtes devrait être ignorée.
      */
     public static boolean sontIsomorphes(Graphe g1, Graphe g2) {
-        throw new RuntimeException("Méthode non implémentée");
+        if (g1.nbSommets() != g2.nbSommets() || g1.nbAretes() != g2.nbAretes()) {
+            return false;
+        }
+
+        List<Integer> sequence1 = sequenceDegres(g1);
+        List<Integer> sequence2 = sequenceDegres(g2);
+
+        return sequence1.equals(sequence2);
     }
+
+
+
+
+
+
 
     /**
      * Retourne un plus court chemin entre 2 sommets sans répétition de sommets
@@ -528,6 +581,8 @@ public class Graphe {
      * @param pondere true si les arêtes sont pondérées (pas les longueurs des routes correspondantes dans le jeu)
      *                false si toutes les arêtes ont un poids de 1 (utile lorsque les routes associées sont complètement omises)
      */
+
+
     public List<Integer> parcoursSansRepetition(int depart, int arrivee, boolean pondere) {
         if (pondere){
             HashMap<Integer, Couple> parcours = new HashMap<>();
@@ -635,7 +690,44 @@ public class Graphe {
      * Pré-requis le graphe `this` est un graphe avec des routes (les objets routes ne sont pas null).
      */
     public List<Integer> parcoursSansRepetition(int depart, int arrivee, int nbWagons, int nbBateaux) {
-        throw new RuntimeException("Méthode non implémentée");
+        List<Integer> parcours = new ArrayList<>();
+        Set<Integer> visite = new HashSet<>();
+        Queue<Integer> file = new LinkedList<>();
+
+        file.add(depart);
+        visite.add(depart);
+
+        while (!file.isEmpty()) {
+            int sommetActuel = file.poll();
+            if (sommetActuel == arrivee) {
+                break;
+            }
+            for (Arete arete : this.mapAretes.get(sommetActuel)) {
+                int sommetSuivant = arete.getAutreSommet(sommetActuel);
+                if (!visite.contains(sommetSuivant) && nbWagons >= arete.route().getLongueur() && nbBateaux >= arete.route().getLongueur()) {
+                    visite.add(sommetSuivant);
+                    file.add(sommetSuivant);
+                }
+            }
+        }
+
+        // parcours à partir du sommet d'arrivée en remontant les prédécesseurs
+        int sommetCourant = arrivee;
+        parcours.add(sommetCourant);
+
+        while (sommetCourant != depart) {
+            for (Arete arete : this.mapAretes.get(sommetCourant)) {
+                int sommetPrecedent = arete.getAutreSommet(sommetCourant);
+                if (visite.contains(sommetPrecedent)) {
+                    parcours.add(sommetPrecedent);
+                    sommetCourant = sommetPrecedent;
+                    break;
+                }
+            }
+        }
+
+        Collections.reverse(parcours); // Inverser l'ordre pour obtenir le parcours dans le bon sens
+        return parcours;
     }
     /**
      * Retourne un chemin passant une et une seule fois par tous les sommets d'une liste donnée.
@@ -647,8 +739,77 @@ public class Graphe {
      * Si le chemin n'existe pas, retourne une liste vide.
      */
     public List<Integer> parcoursSansRepetition(List<Integer> listeSommets) {
-        throw new RuntimeException("Méthode non implémentée");
+        List<Integer> parcours = new ArrayList<>();
+        Set<Integer> visite = new HashSet<>();
+        Queue<Integer> file = new LinkedList<>();
+
+        // Vérifier si la liste des sommets à visiter est valide
+        if (!listeEstOrdoner(listeSommets)) {
+            return parcours; // Retourner une liste vide si la liste des sommets à visiter n'est pas une sous-liste valide
+        }
+
+        // Ajouter le premier sommet de la liste à la file et à l'ensemble de visite
+        int premierSommet = listeSommets.get(0);
+        file.add(premierSommet);
+        visite.add(premierSommet);
+
+        // Parcours en largeur
+        while (!file.isEmpty()) {
+            int sommetActuel = file.poll();
+            if (sommetActuel == listeSommets.get(listeSommets.size() - 1)) {
+                break;
+            }
+            for (Arete arete : this.mapAretes.get(sommetActuel)) {
+                int sommetSuivant = arete.getAutreSommet(sommetActuel);
+                if (!visite.contains(sommetSuivant)) {
+                    visite.add(sommetSuivant);
+                    file.add(sommetSuivant);
+                }
+            }
+        }
+
+        // Parcours à partir du dernier sommet de la liste en remontant les prédécesseurs
+        int sommetCourant = listeSommets.get(listeSommets.size() - 1);
+        parcours.add(sommetCourant);
+
+        for (int i = listeSommets.size() - 2; i >= 0; i--) {
+            int sommetPrecedent = listeSommets.get(i);
+            if (visite.contains(sommetPrecedent)) {
+                parcours.add(sommetPrecedent);
+                sommetCourant = sommetPrecedent;
+            } else {
+                return new ArrayList<>(); // Retourner une liste vide si le chemin n'existe pas
+            }
+        }
+
+        Collections.reverse(parcours); // Inverser l'ordre des sommets pour obtenir le parcours dans le bon sens
+        return parcours;
     }
+
+    /**
+     * Vérifie si la liste de sommets donnée est une sous-liste valide du graphe.
+     * Une sous-liste valide signifie que les sommets apparaissent dans le même ordre dans le graphe.
+     *
+     * @param listeSommets la liste de sommets à vérifier
+     * @return true si la liste de sommets est une sous-liste valide, false sinon
+     */
+    private boolean listeEstOrdoner(List<Integer> listeSommets) {
+        List<Integer> parcours= parcoursSansRepetition(0, this.mapAretes.size() - 1, false);
+
+        int i = 0;
+        for (int sommet : parcours) {
+            if (sommet == listeSommets.get(i)) {
+                i++;
+                if (i == listeSommets.size()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
 
     /**
      * Retourne un plus petit ensemble bloquant de routes entre deux villes. Cette fonction supposera que `this` est
