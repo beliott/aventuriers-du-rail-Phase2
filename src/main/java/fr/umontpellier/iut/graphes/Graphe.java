@@ -819,4 +819,9 @@ public class Graphe {
     public Set<Route> ensembleBloquant(int ville1, int ville2) {
         throw new RuntimeException("Méthode non implémentée");
     }
+
+    public Map<Integer, HashSet<Arete>> getMapAretes() {
+        return mapAretes;
+    }
+
 }

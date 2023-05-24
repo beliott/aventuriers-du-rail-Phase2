@@ -4,11 +4,9 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import fr.umontpellier.iut.rails.data.CarteTransport;
-import fr.umontpellier.iut.rails.data.Couleur;
-import fr.umontpellier.iut.rails.data.Destination;
-import fr.umontpellier.iut.rails.data.TypeCarteTransport;
-import fr.umontpellier.iut.rails.data.Ville;
+import fr.umontpellier.iut.graphes.Arete;
+import fr.umontpellier.iut.graphes.Graphe;
+import fr.umontpellier.iut.rails.data.*;
 
 public class Joueur {
     public enum CouleurJouer {
@@ -698,7 +696,60 @@ public class Joueur {
                 return false;
             }
         }
-        return true;
+        Graphe g = Plateau.makePlateauMonde().getGraphe();
+        String departStr = d.getVilles().get(0);
+        Ville depart = null;
+        for (Ville v: Plateau.makePlateauMonde().getVilles()) {
+            if (v.nom().equals(departStr)){
+                depart = v;
+                 break;
+            }
+        }
+        List<String> villesDeDestCapturees = new ArrayList<>();
+        villesDeDestCapturees.add(departStr);
+        Stack<Integer> fileParcours = new Stack<>();
+        Set<Arete> dejaTrouves = new HashSet<>();
+        fileParcours.add(depart.getId());
+        if (depart != null){
+            while (!fileParcours.isEmpty()){
+                Integer villeActuelle = fileParcours.pop();
+                for (Arete a : g.getMapAretes().get(villeActuelle)) {
+                    if (routes.contains(a.route()) && !dejaTrouves.contains(a)){
+                        dejaTrouves.add(a);
+                        fileParcours.add(a.getAutreSommet(villeActuelle));
+                        if (a.route().getVille1().getId() != villeActuelle){
+                            for (String nomVille : d.getVilles()) {
+                                if (nomVille.equals(a.route().getVille1().nom())){
+                                    villesDeDestCapturees.add(nomVille);
+
+                                    int cpt = 0;
+                                    for (String s: d.getVilles()) {
+                                        for (String strV : villesDeDestCapturees){
+                                            if (s.equals(strV))
+                                                cpt++;
+                                        }
+                                    }
+                                    if (cpt == d.getVilles().size())
+                                        return true;
+                                }
+                            }
+
+                        }
+                    }
+
+                }
+            }
+        }
+        int cpt = 0;
+        for (String s: d.getVilles()) {
+            for (String strV : villesDeDestCapturees){
+                if (s.equals(strV))
+                    cpt++;
+            }
+        }
+        if (cpt == d.getVilles().size())
+            return true;
+        return false;
     }
 
     public int calculerScoreFinal() {
