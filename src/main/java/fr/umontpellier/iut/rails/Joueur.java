@@ -834,11 +834,7 @@ public class Joueur {
      * s'il n'est pas possible de la compléter
      */
     public Collection<Route> routesPourCompleterDestination(Destination d) {
-        if (destinationEstComplete(d)) {
             return Collections.emptyList();
-        }
-
-        return null;
     }
 
     /**
@@ -851,10 +847,7 @@ public class Joueur {
      * s'il n'est pas possible de la compléter.
      */
     public Collection<Route> routesPourCompleterDestinationAvecPions(Destination d) {
-        if (destinationEstComplete(d)) {
             return Collections.emptyList();
-        }
-        return null;
     }
 
     /**
