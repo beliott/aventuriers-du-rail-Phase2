@@ -1,12 +1,8 @@
 package fr.umontpellier.iut.rails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
 
 import fr.umontpellier.iut.rails.data.CarteTransport;
 import fr.umontpellier.iut.rails.data.Couleur;
@@ -787,8 +783,11 @@ public class Joueur {
      * s'il n'est pas possible de la compléter
      */
     public Collection<Route> routesPourCompleterDestination(Destination d) {
-        // Cette fonction est à réécrire entièrement
-        throw new RuntimeException("Méthode non implémentée");
+        if (destinationEstComplete(d)) {
+            return Collections.emptyList();
+        }
+
+        return null;
     }
 
     /**
@@ -801,8 +800,10 @@ public class Joueur {
      * s'il n'est pas possible de la compléter.
      */
     public Collection<Route> routesPourCompleterDestinationAvecPions(Destination d) {
-        // Cette fonction est à réécrire entièrement
-        throw new RuntimeException("Méthode non implémentée");
+        if (destinationEstComplete(d)) {
+            return Collections.emptyList();
+        }
+        return null;
     }
 
     /**
