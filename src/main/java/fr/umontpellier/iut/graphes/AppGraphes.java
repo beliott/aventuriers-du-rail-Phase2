@@ -1,12 +1,10 @@
 package fr.umontpellier.iut.graphes;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class AppGraphes {
     public static void main(String[] args) {
+        
         // Le scénario suivant illustre l'utilisation de la classe Graphe. Le code ne fonctionne pas pour le moment, car
         // les classes Graphes et Arete ne sont pas encore complète.
         Graphe g1 = new Graphe(3);

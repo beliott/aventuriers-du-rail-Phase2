@@ -263,10 +263,8 @@ public class Graphe {
             HashSet<Arete> h = this.mapAretes.get(i);
             for (Integer j: this.mapAretes.keySet()) {
                 if (!Objects.equals(i, j)){ // i != j  => Integer au lieu de int, necessite Objects. pour suppr warning
-                    Arete tempArete = new Arete(i, j), tempAreteReverse = new Arete(j, i); // on connait pas l'ordre a l'avance, donc on envisage les 2
-                    if (!h.contains(tempArete) && !h.contains(tempAreteReverse)){
-                        return false; // l'arrete créée au sens equals du hashSet doit etre la meme pour que ca soit bon
-                    }
+                    if(!this.getVoisins(i).contains(j))
+                        return false;
                 }
             }
         }
@@ -279,59 +277,19 @@ public class Graphe {
      * les sommets successifs de la chaîne. On considère que le graphe vide est une chaîne.
      */
     public boolean estUneChaine() {
-        int sommetPremierD = -1;
-        if (this.nbSommets() == 0 || nbAretes() == 0){
-            return true;
-        } else if (this.estSimple()) {
-            // Premiere partie regarde si les degrés correspondent.
-            int nbDegre1 = 0;
-            for (Integer i: this.mapAretes.keySet()) {
-                int degreDeI = degre(i);
-                if (degreDeI == 1){
-                    if (nbDegre1 == 2){
-                        return false;
-                    }
-                    else if (nbDegre1 == 1) {
-                        for (Arete a : this.mapAretes.get(i)){ // juste pour recuperer l'arete
-                            if (a.getAutreSommet(i) == sommetPremierD) // si le seul voisin c'est celui de degré 1
-                                return false;
-                        }
-                    }
-                    else if (nbDegre1 == 0)
-                        sommetPremierD = i;
-                    nbDegre1++;
-                } else if (degreDeI > 2) { // 2 ok et 0 aussi mais 3 plus une chaine.
-                    return false;
-                }
-            }
-            if (nbDegre1 != 2) // par definition une chaine a une tete et une queue/ un debut et une fin
+        int sommetDegre1 = 0;
+        for (Integer x : this.mapAretes.keySet()) {
+            if (!this.getClasseConnexite(x).equals(this.mapAretes.keySet())){
                 return false;
-            // Deuxieme partie parcourt sommets pour voir si contient un cycle ou pas (pas besoin de checker si paralleles)
-            Queue<Integer> aParcourir = new ArrayDeque<>();
-            aParcourir.add(sommetPremierD);
-            Integer eltPrecedent = null;
-            Integer eltActuel = null;
-            HashSet<Integer> pointsParcourus = new HashSet<>();
-
-            while(!aParcourir.isEmpty()){
-                if (eltActuel != null){// si pas premier sommet a parcourir
-                    eltPrecedent = eltActuel;
-                    pointsParcourus.add(eltPrecedent);
-                }
-                eltActuel = aParcourir.poll();
-                for (Arete a : this.mapAretes.get(eltActuel)) {
-                    Integer sommet2 = a.getAutreSommet(eltActuel);
-                    if (pointsParcourus.contains(sommet2)){
-                        if (!sommet2.equals(eltPrecedent))
-                            return false;
-                    } else {
-                        aParcourir.add(sommet2);
-                    }
-                }
             }
-
-        } else
-            return false;
+            if (degre(x) == 1){
+                sommetDegre1++;
+                if (sommetDegre1 == 3)
+                    return false;
+            } else if (degre(x) != 2) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -343,46 +301,12 @@ public class Graphe {
      * On considère que le graphe vide est un cycle.
      */
     public boolean estUnCycle() {
-        if (this.nbSommets() == 0 || nbAretes() == 0) {
-            return true;
-        }
-        if (!this.estSimple())
-            return false;
-        int cpt = 0;
-        Integer premierSommetParcouru = null;
-        Integer sommetActuel = null;
-        Integer sommetPrecedent = null;
-        Integer sommetProchain = null;
-        List<Integer> dejaVu = new ArrayList<>();
-
-        while (cpt < nbSommets()){
-            cpt++;
-            if (sommetActuel == null){ // si debut parcours
-                List<Integer> l = new ArrayList<>(this.mapAretes.keySet());
-                sommetActuel = l.get(0);
-            } else {
-                sommetPrecedent = sommetActuel;
-                sommetActuel = sommetProchain;
-            }
-            dejaVu.add(sommetActuel);
-            if (degre(sommetActuel) != 2) // une seule arete entre sommets successifs
+        for (Integer x : this.mapAretes.keySet()) {
+            if (!this.getClasseConnexite(x).equals(this.mapAretes.keySet())) {
                 return false;
-            Set<Integer> voisins = getVoisins(sommetActuel);
-            for (Integer voisin : voisins) {
-                if (premierSommetParcouru == null) { // on prend pas le premier car on veut partir dans un sens pour revenir
-                    premierSommetParcouru = sommetActuel;
-                }
-                else{
-                    if (!Objects.equals(voisin, sommetPrecedent)){ // si pas sommet precedent
-                        if (dejaVu.contains(voisin) && cpt != nbSommets()) // si croisement mais pas fin du graphe
-                            return false;
-                        else if (dejaVu.contains(voisin) && cpt == nbSommets() && !Objects.equals(voisin, premierSommetParcouru))// si arrive au bout du cycle mais connexion avec le mauvais
-                            return false;
-                        if (!dejaVu.contains(voisin)){ // si nouveau voisin a parcourir
-                            sommetProchain = voisin;
-                        }
-                    }
-                }
+            }
+            else if (degre(x) != 2) {
+                return false;
             }
         }
         return true;
